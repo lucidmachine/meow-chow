@@ -1,10 +1,10 @@
 #include <Arduino.h>
 #include "LoadSensor.h"
 
-LoadSensor::LoadSensor(int pinNumber)
+LoadSensor::LoadSensor (int pinNumber)
 {
     // Set pin
-    this->pinNumber = pinNumber;
+    this->setPinNumber(pinNumber);
 }
 
 int LoadSensor::getPinNumber ()
