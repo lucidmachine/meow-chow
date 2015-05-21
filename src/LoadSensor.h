@@ -6,12 +6,13 @@ class LoadSensor
 private:
     int pinNumber;
     int voltage;
+    
+    bool setPinNumber(int newPinNumber);
 
 public:
     LoadSensor(int pinNumber);
 
     int getPinNumber();
-    bool setPinNumber(int newPinNumber);
 
     int getVoltage();
 };
