@@ -1,7 +1,7 @@
 #include <Arduino.h>
+#include "LoadSensor.h"
 
-const int LED_PIN = 13;
-const int FORCE_SENSOR_PIN = 0;
+LoadSensor loadSensor(0);
 
 int     zero            = 0;
 int     max             = 1024;
@@ -20,18 +20,18 @@ void setup ()
 void loop ()
 {
     // Get current voltage
-    currentVoltage = analogRead(FORCE_SENSOR_PIN);
+    currentVoltage = loadSensor.getVoltage();
 
     // Compute zeroed voltage and percent of maximum voltage
     zeroedVoltage = currentVoltage - zero;
-    percentMax = (float)zeroedVoltage / (float)(max - zero);
+    percentMax = (float)zeroedVoltage / (float)(max - zero) * 100;
 
     // Output zeroed voltage
     Serial.print('\r');
     Serial.print("             ");
     Serial.print('\r');
     Serial.print("Read: " + (String)zeroedVoltage + "(");
-    Serial.print(percentMax, 2);
+    Serial.print(percentMax, 0);
     Serial.print("%)");
     Serial.print('\r');
 
