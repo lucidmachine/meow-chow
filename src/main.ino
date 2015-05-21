@@ -1,15 +1,12 @@
 #include <Arduino.h>
-#include "LoadSensor.h"
+#include "Scale.h"
 
-LoadSensor loadSensor(0);
 
-int     zero            = 0;
-int     max             = 1024;
-int     currentVoltage  = 0;
-int     zeroedVoltage   = 0;
-float   percentMax      = 0.0;
+Scale scales[] = {Scale(0), Scale(0)};
+
 int     serialByte      = 0;
 char    serialCharacter = '\0';
+
 
 void setup ()
 {
@@ -19,43 +16,58 @@ void setup ()
 
 void loop ()
 {
-    // Get current voltage
-    currentVoltage = loadSensor.getVoltage();
+    outputScaleReadings();
+    handleInput();
+    delay(1000);
+}
 
-    // Compute zeroed voltage and percent of maximum voltage
-    zeroedVoltage = currentVoltage - zero;
-    percentMax = (float)zeroedVoltage / (float)(max - zero) * 100;
+void outputScaleReadings ()
+{
+    Serial.print('\r');
+    Serial.print("                                ");
+    Serial.print('\r');
+    Serial.print(scales[0].print() + "\t" + scales[1].print());
+    Serial.print('\r');
+}
 
-    // Output zeroed voltage
-    Serial.print('\r');
-    Serial.print("             ");
-    Serial.print('\r');
-    Serial.print("Read: " + (String)zeroedVoltage + "(");
-    Serial.print(percentMax, 0);
-    Serial.print("%)");
-    Serial.print('\r');
-
-    // Check for tare signal
+void handleInput ()
+{
     if (Serial.available())
     {
+        // Get serial input
         serialByte = Serial.read();
         serialCharacter = (char)serialByte;
 
-        if (serialCharacter == 't')
+        switch (serialCharacter)
         {
-            Serial.print('\n');
-            Serial.print('\r');
-            Serial.println("Tare: "+(String)currentVoltage);
-            zero = currentVoltage;
-        }
-        if (serialCharacter == 'm')
-        {
-            Serial.print('\n');
-            Serial.print('\r');
-            Serial.println("Max: "+(String)zeroedVoltage);
-            max = currentVoltage;
+            case 't':
+                tareScale(0);
+                break;
+            case 'y':
+                tareScale(1);
+                break;
+            case 'm':
+                maxScale(0);
+                break;
+            case ',':
+                maxScale(1);
+                break;
         }
     }
+}
 
-    delay(1000);
+void tareScale(int scaleIndex)
+{
+    Serial.print('\n');
+    Serial.print('\r');
+    Serial.println("Tare " + (String)scaleIndex + ": " + (String)scales[scaleIndex].getWeight());
+    scales[scaleIndex].tare();
+}
+
+void maxScale(int scaleIndex)
+{
+    Serial.print('\n');
+    Serial.print('\r');
+    Serial.println("Max " + (String)scaleIndex + ": " + (String)scales[scaleIndex].getWeight());
+    scales[scaleIndex].maximum();
 }
